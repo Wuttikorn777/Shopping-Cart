@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thank You</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #fff4f4; /* แดงอ่อนพื้นหลัง */
+      text-align: center;
+      padding: 50px;
+    }
+    h1 {
+      color: #ff0000; /* แดงมาริโอ้ */
+      font-size: 2.5em;
+    }
+    p {
+      font-size: 1.2em;
+      color: #333;
+    }
+    a {
+      text-decoration: none;
+      background-color: #003366; /* น้ำเงินเข้ม */
+      color: #fcd200; /* เหลือง */
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 1.2em;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    a:hover {
+      background-color: #001f4d; /* น้ำเงินเข้มขึ้น */
+      color: #fff; /* ขาวตอน hover */
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    .emoji {
+      font-size: 4em;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">🎉</div>
+    <h1>Thank you, <%= username %>!</h1>
+    <p>Your session has ended or the payment time expired.</p>
+    <a href="/">Back to home</a>
+  </div>
+</body>
+</html>

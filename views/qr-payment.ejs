@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>QR Payment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .qr-container {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .qr-code {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .qr-code img {
+      width: 200px;
+      height: 200px;
+    }
+
+    .info {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .countdown {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #dc2626; /* แดง */
+    }
+
+    .expired {
+      color: #dc2626;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .button-container {
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    .back-button {
+      background-color: #f44336;
+    }
+
+    .back-button:hover {
+      background-color: #e53935;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="qr-container">
+    <h1>Hello, <%= username %>!</h1>
+    <p>Scan the QR code below to complete your payment:</p>
+
+    <div class="qr-code">
+      <img src="<%= qrCodeUrl %>" alt="QR Code" id="qr-code" style="max-width: 300px; max-height: 300px;">
+    </div>
+
+    <div class="countdown" id="countdown">Time left: 05:00</div>
+
+    <div class="info">
+      <p>If the QR code doesn't appear, please try again or contact support.</p>
+    </div>
+
+    <div class="expired" id="expiredMessage" style="display: none;">
+      ⏰ Payment time expired. Please place your order again.
+    </div>
+
+    <div class="button-container">
+      <!-- Back Button -->
+      <button class="back-button" onclick="window.history.back();">Back</button>
+    </div>
+  </div>
+
+  <script>
+    let timeLeft = 300; // 5 minutes in seconds
+    const countdownEl = document.getElementById('countdown');
+    const expiredMsg = document.getElementById('expiredMessage');
+
+    function updateCountdown() {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      countdownEl.innerText = `Time left: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        countdownEl.style.display = 'none';
+        expiredMsg.style.display = 'block';
+
+        // Redirect to another page after the countdown ends
+        setTimeout(() => {
+          window.location.href = '/'; // Go to home page after 2 seconds
+        }, 2000); // Adding 2 seconds delay for the user to see the expired message
+      }
+
+      timeLeft--;
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    function clearCartAndGoToIndex() {
+      // Call a function to clear the user's cart (adjust as needed)
+      fetch('/cart/clear', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = '/'; // Redirect to home page
+        } else {
+          alert('Error clearing cart');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error clearing cart');
+      });
+    }
+  </script>
+
+</body>
+</html>

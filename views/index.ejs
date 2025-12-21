@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyShoppingCart</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', cursive;
+      background-color: #C4F0C2;
+      color: #2B2B2B;
+      padding: 100px 0 250px;
+    }
+    nav {
+      background: #E4002B;
+      color: white;
+      padding: 25px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      border-bottom: 4px solid #F5C600;
+      box-shadow: 6px 6px #2B2B2B;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .user-info {
+      background-color: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      background-color: #F5C600;
+      color: #2B2B2B;
+      border: none;
+      padding: 6px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      right: 50px;
+    }
+
+    .logout-btn:hover {
+      background-color: #E4002B;
+      color: white;
+    }
+
+    .user-info span {
+      background-color: #ffffff33;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .container {
+      width: 80%;
+      margin: auto;
+      padding: 20px;
+    }
+
+    h2 {
+      text-align: center;
+      background: #F5C600;
+      color: #E4002B;
+      padding: 12px 28px;
+      margin: 40px auto 30px;
+      border: 4px solid #2B2B2B;
+      box-shadow: 8px 8px #2B2B2B;
+      width: 30%;
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .product-item {
+      background: #f4f4f4;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      transition: 0.3s;
+    }
+
+    .product-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+
+    .btn {
+      background: #F5C600;
+      color: #2B2B2B;
+      border: 2px solid #2B2B2B;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #E4002B;
+      color: white;
+    }
+
+    #cartButton {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #F5C600;
+      border: 3px solid #2B2B2B;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      cursor: pointer;
+      box-shadow: 6px 6px #2B2B2B;
+    }
+
+    #cartBadge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: red;
+      color: white;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .popup-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .popup-content {
+      background: white;
+      border: 4px solid #2B2B2B;
+      padding: 30px;
+      width: 320px;
+      max-height: 80%;
+      overflow-y: auto;
+      text-align: center;
+      box-shadow: 8px 8px #2B2B2B;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close-btn:hover {
+      color: #E4002B;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    .bounce {
+      animation: bounce 0.4s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div>MyShoppingCart 🛒</div>
+  <div class="user-info">
+    <span>USER: <%= username %></span>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<div class="container">
+  <h2>Product List</h2>
+  <% if (products && products.length > 0) { %>
+    <div class="product-list">
+      <% products.forEach(product => { %>
+        <div class="product-item">
+          <strong><%= product.name %></strong><br>
+          Price: $<%= product.price %><br>
+          Stock: <%= product.stock %><br>
+          <button class="btn" onclick="addToCart('<%= product.id %>', '<%= product.name %>', 1, '<%= product.price %>')">ADD</button>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <p>No products available.</p>
+  <% } %>
+</div>
+
+<!-- Cart Button -->
+<button id="cartButton" onclick="openPopup()">🛒
+  <div id="cartBadge">0</div>
+</button>
+
+<!-- Popup Cart -->
+<div id="cartPopup" class="popup-overlay">
+  <div class="popup-content">
+    <span class="close-btn" onclick="closePopup()">✖</span>
+    <h2>Your Cart 🛒</h2>
+    <div id="popupCartItems"></div>
+    <div style="margin-top: 10px;">
+      Total Items: <span id="popupCartCount">0</span> | Total: $<span id="popupCartTotal">0.00</span>
+    </div>
+    <button class="btn" style="background-color: #E4002B; color: white;" onclick="clearCart()">DELETE ALL</button>
+    <button class="btn" onclick="goToCheckout()">CHECKOUT</button>
+  </div>
+</div>
+
+<script>
+const userId = "<%= username %>";
+let cachedTotal = 0;
+
+async function addToCart(id, name, qty, price) {
+  try {
+    const res = await fetch(`/cart/${userId}/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ itemId: id, quantity: qty })
+    });
+
+    if (!res.ok) {
+      const errMsg = await res.text();
+      alert('❌ ' + errMsg);
+      return;
+    }
+
+    triggerCartButtonBounce();
+    await updateCartBadge();
+  } catch (err) {
+    console.error('Error adding to cart:', err);
+    alert('❌ Failed to add to cart');
+  }
+}
+
+async function fetchCart() {
+  try {
+    const res = await fetch(`/cart/${userId}`);
+    if (!res.ok) throw new Error('Failed to fetch cart');
+    const data = await res.json();
+    return data.cart || {};
+  } catch (err) {
+    console.error('Error fetching cart:', err);
+    return {};
+  }
+}
+
+async function renderPopupCart() {
+  const cart = await fetchCart();
+  const container = document.getElementById('popupCartItems');
+  container.innerHTML = '';
+  let total = 0, count = 0;
+
+  for (let id in cart) {
+    const item = cart[id];
+    container.innerHTML += `
+      <div style="margin-bottom: 10px;">
+        ${item.name} - $${item.price}
+        <div>
+          <button class="btn" onclick="changeQuantity('${id}', 'decrease')">-</button>
+          ${item.quantity}
+          <button class="btn" onclick="changeQuantity('${id}', 'increase')">+</button>
+        </div>
+      </div>
+    `;
+    total += item.quantity * item.price;
+    count += item.quantity;
+  }
+
+  cachedTotal = total; // 🟡 เก็บค่าไว้ใช้ตอน checkout
+  document.getElementById('popupCartCount').innerText = count;
+  document.getElementById('popupCartTotal').innerText = total.toFixed(2);
+}
+
+async function changeQuantity(id, action) {
+  try {
+    const res = await fetch(`/cart/${userId}/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ itemId: id, action })
+    });
+    if (!res.ok) throw new Error('Failed to update quantity');
+
+    await renderPopupCart();
+    await updateCartBadge();
+  } catch (err) {
+    console.error('Error updating quantity:', err);
+  }
+}
+
+async function clearCart() {
+  if (!confirm("Are you sure you want to delete all items?")) return;
+  try {
+    const res = await fetch(`/cart/${userId}/clear`, { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to clear cart');
+
+    await renderPopupCart();
+    await updateCartBadge();
+  } catch (err) {
+    console.error('Error clearing cart:', err);
+  }
+}
+
+async function updateCartBadge() {
+  const cart = await fetchCart();
+  let count = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+  document.getElementById('cartBadge').innerText = count;
+}
+
+function openPopup() {
+  document.getElementById('cartPopup').style.display = 'flex';
+  renderPopupCart();
+}
+
+function closePopup() {
+  document.getElementById('cartPopup').style.display = 'none';
+}
+
+function goToCheckout() {
+  window.location.href = `/checkout?total=${cachedTotal.toFixed(2)}`;
+}
+
+function logout() {
+  window.location.href = '/login';
+}
+
+function triggerCartButtonBounce() {
+  const cartButton = document.getElementById('cartButton');
+  cartButton.classList.add('bounce');
+  setTimeout(() => cartButton.classList.remove('bounce'), 400);
+}
+
+window.onload = updateCartBadge;
+</script>
+
+</body>
+</html>

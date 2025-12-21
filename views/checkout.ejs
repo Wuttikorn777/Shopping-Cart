@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Checkout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    nav {
+      background-color: #E4002B;
+      padding: 16px 24px;
+      color: white;
+      font-size: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      font-size: 14px;
+      background-color: white;
+      color: #E4002B;
+      border: 2px solid #E4002B;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .logout-btn:hover {
+      background-color: #F5C600;
+      color: #000;
+      border-color: #F5C600;
+    }
+
+    #usershow {
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      padding: 24px;
+      width: 100%;
+      max-width: 1200px;
+      margin-top: 30px;
+    }
+
+    .checkout-form, .checkout-summary {
+      width: 48%;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      width: 100%;
+    }
+
+    .checkout-btn {
+      background-color: #F5C600;
+      color: #000;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 30px;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+
+    .checkout-btn:hover {
+      background-color: #e0b800;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+      color: #444;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .radio-group input[type="radio"] {
+      accent-color: #E4002B;
+      width: 18px;
+      height: 18px;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .total {
+      font-weight: bold;
+      font-size: 18px;
+      text-align: right;
+      margin-top: 20px;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div>Checkout</div>
+    <div>
+      <span id="usershow">User: <%= username %></span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="checkout-form card">
+      <form action="/place-order" method="POST" class="checkout-summary card" onsubmit="return validatePaymentMethod()">
+        <h2 class="section-title">Payment Method</h2>
+        <div class="input-group">
+          <label>Choose a payment option</label>
+          <div class="radio-group">
+            <label><input type="radio" name="paymentMethod" value="credit-card"> 💳 Credit Card</label>
+            <label><input type="radio" name="paymentMethod" value="QR Payment">📱 QR Payment</label>
+            <label><input type="radio" name="paymentMethod" value="Cash on Delivery">📦 Cash on Delivery</label>
+          </div>
+        </div>
+        <br>
+
+        <h2 class="section-title">Order Summary</h2>
+        <div id="cartItemsSummary"></div>
+        <div class="total" id="totalAmount">Total: $0</div>
+        <input type="hidden" name="totalAmount" id="totalAmountInput" />
+        <button type="submit" class="checkout-btn">Place Order</button>
+
+        <div style="text-align: center; margin-top: 16px;">
+          <a href="/" style="font-size: 14px; color: #4f46e5; text-decoration: none;">
+            ← กลับไปยังตะกร้าสินค้า
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const userId = "<%= username %>";
+    let cart = {};
+    let totalAmount = 0;
+
+    async function fetchCart() {
+      try {
+        const res = await fetch(`/cart/${userId}`);
+        if (!res.ok) throw new Error('Failed to fetch cart');
+        const data = await res.json();
+        cart = data.cart || {};
+      } catch (err) {
+        console.error('Error fetching cart:', err);
+        cart = {};
+      }
+    }
+
+    async function renderCartSummary() {
+      await fetchCart();
+      const cartItemsSummary = document.getElementById("cartItemsSummary");
+      const totalAmountElement = document.getElementById("totalAmount");
+      const totalAmountInput = document.getElementById("totalAmountInput");
+
+      cartItemsSummary.innerHTML = "";
+      totalAmount = 0;
+
+      for (let id in cart) {
+        const item = cart[id];
+        totalAmount += item.quantity * item.price;
+
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.innerHTML = `
+          <div><strong>${item.name}</strong> - $${item.price.toFixed(2)}</div>
+          <div>x${item.quantity}</div>
+        `;
+        cartItemsSummary.appendChild(div);
+      }
+
+      totalAmountElement.innerText = `Total: $${totalAmount.toFixed(2)}`;
+      totalAmountInput.value = totalAmount.toFixed(2);
+    }
+
+    function validatePaymentMethod() {
+      const paymentOptions = document.getElementsByName("paymentMethod");
+      let selected = false;
+      for (const option of paymentOptions) {
+        if (option.checked) {
+          selected = true;
+          break;
+        }
+      }
+
+      if (!selected) {
+        alert("กรุณาเลือกวิธีการชำระเงินก่อนทำรายการ");
+        return false;
+      }
+
+      return true;
+    }
+
+    function logout() {
+      window.location.href = '/logout';
+    }
+
+    window.onload = function () {
+      renderCartSummary();
+    };
+  </script>
+
+</body>
+</html>
