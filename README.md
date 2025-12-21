@@ -14,15 +14,15 @@ Web Application ระบบตะกร้าสินค้าประสิ�
    ```bash
    git clone <your-repo-url>
 
-2. **Clone Project**
+2. **Start Infrastructure (Docker)**
    ```bash
    docker-compose up -d
 
-3. **Clone Project**
+3. **Install Dependencies**
    ```bash
    npm install
 
-4. **Clone Project**
+4. **Run Server**
    ```bash
    npm start
    Open browser at: http://localhost:3000    
