@@ -22,36 +22,29 @@ This application simulates a real-world e-commerce backend scenario where perfor
 * **Frontend:** EJS (Templating Engine), CSS3
 
 
-## 🛠️ How to Run
+## 📦 Installation & Setup
 
-1. **Clone Project**
+Follow these steps to run the project locally:
 
-   ```bash
+1.  **Clone the Repository**
+    ```bash
+    git clone https://github.com/WuttikornFunk/Shopping-Cart.git
+    cd Shopping-Cart
+    ```
 
-   git clone <your-repo-url>
+2.  **Start Infrastructure (Docker)**
+    ```bash
+    docker-compose up -d --build
+    ```
 
-
-
-2. **Start Infrastructure (Docker)**
-
-   ```bash
-
-   docker-compose up -d
-
-
-
-3. **Install Dependencies**
-
-   ```bash
-
-   npm install
-
-
-
-4. **Run Server**
-
-   ```bash
-
-   npm start
-
-   Open browser at: http://localhost:3000  
+3.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+    
+3.  **Run Server**
+    ```bash
+    npm start
+    ```
+    
+4.  Access the App Open your browser and navigate to: http://localhost:3000
